@@ -102,14 +102,11 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
         });
     }
     public void onMeasureClicked(View v) {
-        int res;
+        short res;
         byte pin=0;
         Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
-        TextView tv = (TextView) findViewById(R.id.field_measurement);
-        res = Integer.valueOf((String) tv.getText());
-        res += 1;
-        tv.setText(Integer.toString(res));
-        //tv.setText((Integer.valueOf((String) tv.getText())+1));
+
+        final TextView tv = (TextView) findViewById(R.id.field_measurement);
 
         gpioModule.routeData().fromAnalogIn(pin, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
@@ -117,6 +114,8 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
                 result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
                     @Override
                     public void process(Message message) {
+
+                        tv.setText(Short.toString(message.getData(Short.class)));
                         Log.i(TAG,"ADC" + message.getData(Short.class));
                     }
                 });
