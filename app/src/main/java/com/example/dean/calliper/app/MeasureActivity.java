@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -16,6 +15,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dean.calliper.app.CalibrationFragment.OnCalibrationChangedListener;
 import com.mbientlab.metawear.AsyncOperation;
 import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.MetaWearBleService;
@@ -25,17 +25,11 @@ import com.mbientlab.metawear.UnsupportedModuleException;
 import com.mbientlab.metawear.module.Gpio;
 import com.mbientlab.metawear.module.Led;
 
-public class MeasureActivity extends AppCompatActivity implements ServiceConnection {
+public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener {
     public static final String EXTRA_BT_DEVICE= "com.example.dean.calliper.app.MeasureActivity.EXTRA_BT_DEVICE";
 
     private static final String TAG = "MeasureActivity";
-    private MetaWearBoard mwBoard;
-    private BluetoothDevice btDevice;
-    private Gpio gpioModule;
-    private int cal_max=1024;
-    private int cal_min=0;
-
-    private final MetaWearBoard.ConnectionStateHandler connectionHandler= new MetaWearBoard.ConnectionStateHandler() {
+    private final MetaWearBoard.ConnectionStateHandler connectionHandler = new MetaWearBoard.ConnectionStateHandler() {
         @Override
         public void connected() {
 //            ((DialogFragment) getSupportFragmentManager().findFragmentByTag(RECONNECT_DIALOG_TAG)).dismiss();
@@ -60,13 +54,16 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
             Log.i(TAG, "CSH: Error Connecting");
         }
     };
+    private MetaWearBoard mwBoard;
+    private BluetoothDevice btDevice;
+    private Gpio gpioModule;
+    private int cal_max=1024;
+    private int cal_min=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messure);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
@@ -107,10 +104,9 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cal_max = progress;
-                ((TextView) findViewById(R.id.field_cal_max)).setText(Integer.toString(progress));
-                if( ((SeekBar) findViewById(R.id.seekBar_min)).getProgress() > cal_max){
+                ((TextView) findViewById(R.id.field_cal_max)).setText(String.format("%d", progress));
+                if (((SeekBar) findViewById(R.id.seekBar_min)).getProgress() > cal_max)
                     ((SeekBar) findViewById(R.id.seekBar_min)).setProgress(cal_max);
-                }
             }
 
             @Override
@@ -149,7 +145,6 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
 
     }
     public void onMeasureClicked(View v) {
-        short res;
         byte pin=0;
         Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
 
@@ -166,7 +161,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
                         Short signal = message.getData(Short.class);
                         float resolution = (float) (80.0 / (cal_max-cal_min));
 
-                        tvADC.setText(signal.toString() + " ADC");
+                        tvADC.setText(String.format("%d ADC", signal));
                         tvMM.setText(String.format("%.0f mm",(signal - cal_min)*resolution));
                         Log.i(TAG,"ADC" + message.getData(Short.class));
                     }
@@ -174,7 +169,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
             }
         });
 
-        gpioModule.readAnalogIn(pin,mode);
+        gpioModule.readAnalogIn(pin, mode);
     }
 
     @Override
@@ -207,5 +202,11 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
 
         mwBoard.setConnectionStateHandler(null);
         getApplicationContext().unbindService(this);
+    }
+
+    @Override
+    public void onCalibrationChanged(int min, int max) {
+        cal_min = min;
+        cal_max = max;
     }
 }
