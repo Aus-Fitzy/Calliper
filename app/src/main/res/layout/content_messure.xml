@@ -17,6 +17,24 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:checked="false"
-        android:onClick="onLedToggle"
         android:nestedScrollingEnabled="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Measurement"
+        android:id="@+id/label_measurement"
+        android:layout_below="@+id/led_toggle"
+        android:layout_alignParentStart="true"
+        android:onClick="onMeasureClicked" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="0"
+        android:id="@+id/field_measurement"
+        android:layout_alignTop="@+id/label_measurement"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

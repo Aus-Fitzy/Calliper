@@ -4,18 +4,25 @@ import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.GpsStatus;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
+import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.UnsupportedModuleException;
+import com.mbientlab.metawear.module.Gpio;
 import com.mbientlab.metawear.module.Led;
 
 public class MeasureActivity extends AppCompatActivity implements ServiceConnection {
@@ -24,6 +31,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     private static final String TAG = "MeasureActivity";
     private MetaWearBoard mwBoard;
     private BluetoothDevice btDevice;
+    private Gpio gpioModule;
 
     private final MetaWearBoard.ConnectionStateHandler connectionHandler= new MetaWearBoard.ConnectionStateHandler() {
         @Override
@@ -93,12 +101,40 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
             }
         });
     }
+    public void onMeasureClicked(View v) {
+        int res;
+        byte pin=0;
+        Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
+        TextView tv = (TextView) findViewById(R.id.field_measurement);
+        res = Integer.valueOf((String) tv.getText());
+        res += 1;
+        tv.setText(Integer.toString(res));
+        //tv.setText((Integer.valueOf((String) tv.getText())+1));
 
+        gpioModule.routeData().fromAnalogIn(pin, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+            @Override
+            public void success(RouteManager result) {
+                result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
+                    @Override
+                    public void process(Message message) {
+                        Log.i(TAG,"ADC" + message.getData(Short.class));
+                    }
+                });
+            }
+        });
+
+        gpioModule.readAnalogIn(pin,mode);
+    }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mwBoard= ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(btDevice);
         mwBoard.setConnectionStateHandler(connectionHandler);
+        try {
+            gpioModule = mwBoard.getModule(Gpio.class);
+        } catch (UnsupportedModuleException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
