@@ -107,6 +107,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cal_max = progress;
+                ((TextView) findViewById(R.id.field_cal_max)).setText(Integer.toString(progress));
                 if( ((SeekBar) findViewById(R.id.seekBar_min)).getProgress() > cal_max){
                     ((SeekBar) findViewById(R.id.seekBar_min)).setProgress(cal_max);
                 }
@@ -128,6 +129,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cal_min=progress;
+                ((TextView) findViewById(R.id.field_cal_min)).setText(Integer.toString(progress));
                 if( ((SeekBar) findViewById(R.id.seekBar_max)).getProgress() < cal_min){
                     ((SeekBar) findViewById(R.id.seekBar_max)).setProgress(cal_min);
                 }
@@ -151,7 +153,8 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
         byte pin=0;
         Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
 
-        final TextView tv = (TextView) findViewById(R.id.field_measurement);
+        final TextView tvADC = (TextView) findViewById(R.id.field_measurement_adc);
+        final TextView tvMM = (TextView) findViewById(R.id.field_measurement_mm);
 
         gpioModule.routeData().fromAnalogIn(pin, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
@@ -159,11 +162,12 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
                 result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
                     @Override
                     public void process(Message message) {
-                        //
-
+                        //scale the reading to mm, 0-80mm range from cal_min to cal_max
                         Short signal = message.getData(Short.class);
+                        float resolution = (float) (80.0 / (cal_max-cal_min));
 
-                        tv.setText(Short.toString(message.getData(Short.class)));
+                        tvADC.setText(signal.toString() + " ADC");
+                        tvMM.setText(String.format("%.0f mm",(signal - cal_min)*resolution));
                         Log.i(TAG,"ADC" + message.getData(Short.class));
                     }
                 });
