@@ -113,16 +113,6 @@ public class CalibrationFragment extends Fragment {
         }
     }
 
-    /*@Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnCalibrationChangedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnCalibrationChangedListener");
-        }
-    }*/
 
     @Override
     public void onDetach() {

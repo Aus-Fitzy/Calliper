@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -16,16 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dean.calliper.app.CalibrationFragment.OnCalibrationChangedListener;
-import com.mbientlab.metawear.AsyncOperation;
-import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
-import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.UnsupportedModuleException;
-import com.mbientlab.metawear.module.Gpio;
 import com.mbientlab.metawear.module.Led;
 
-public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener {
+public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener, MeasureFragment.FragmentListener {
     public static final String EXTRA_BT_DEVICE= "com.example.dean.calliper.app.MeasureActivity.EXTRA_BT_DEVICE";
 
     private static final String TAG = "MeasureActivity";
@@ -56,9 +51,8 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     };
     private MetaWearBoard mwBoard;
     private BluetoothDevice btDevice;
-    private Gpio gpioModule;
-    private int cal_max=1024;
-    private int cal_min=0;
+    private int calMax = 1024;
+    private int calMin = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +80,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
                         LEDModule.configureColorChannel(Led.ColorChannel.BLUE)
                                 .setRiseTime((short) 0).setPulseDuration((short) 1000)
                                 .setRepeatCount((byte) 5).setHighTime((short) 500)
-                                .setHighIntensity((byte) 16).setLowIntensity((byte) 16)
+                                .setHighIntensity((byte) 16).setLowIntensity((byte) 4)
                                 .commit();
                         LEDModule.play(true);
                     }
@@ -103,10 +97,10 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                cal_max = progress;
+                calMax = progress;
                 ((TextView) findViewById(R.id.field_cal_max)).setText(String.format("%d", progress));
-                if (((SeekBar) findViewById(R.id.seekBar_min)).getProgress() > cal_max)
-                    ((SeekBar) findViewById(R.id.seekBar_min)).setProgress(cal_max);
+                if (((SeekBar) findViewById(R.id.seekBar_min)).getProgress() > calMax)
+                    ((SeekBar) findViewById(R.id.seekBar_min)).setProgress(calMax);
             }
 
             @Override
@@ -124,10 +118,10 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                cal_min=progress;
+                calMin = progress;
                 ((TextView) findViewById(R.id.field_cal_min)).setText(Integer.toString(progress));
-                if( ((SeekBar) findViewById(R.id.seekBar_max)).getProgress() < cal_min){
-                    ((SeekBar) findViewById(R.id.seekBar_max)).setProgress(cal_min);
+                if (((SeekBar) findViewById(R.id.seekBar_max)).getProgress() < calMin) {
+                    ((SeekBar) findViewById(R.id.seekBar_max)).setProgress(calMin);
                 }
             }
 
@@ -144,43 +138,12 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
 
 
     }
-    public void onMeasureClicked(View v) {
-        byte pin=0;
-        Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
 
-        final TextView tvADC = (TextView) findViewById(R.id.field_measurement_adc);
-        final TextView tvMM = (TextView) findViewById(R.id.field_measurement_mm);
-
-        gpioModule.routeData().fromAnalogIn(pin, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
-            @Override
-            public void success(RouteManager result) {
-                result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
-                    @Override
-                    public void process(Message message) {
-                        //scale the reading to mm, 0-80mm range from cal_min to cal_max
-                        Short signal = message.getData(Short.class);
-                        float resolution = (float) (80.0 / (cal_max-cal_min));
-
-                        tvADC.setText(String.format("%d ADC", signal));
-                        tvMM.setText(String.format("%.0f mm",(signal - cal_min)*resolution));
-                        Log.i(TAG,"ADC" + message.getData(Short.class));
-                    }
-                });
-            }
-        });
-
-        gpioModule.readAnalogIn(pin, mode);
-    }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mwBoard= ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(btDevice);
         mwBoard.setConnectionStateHandler(connectionHandler);
-        try {
-            gpioModule = mwBoard.getModule(Gpio.class);
-        } catch (UnsupportedModuleException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -206,7 +169,22 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
 
     @Override
     public void onCalibrationChanged(int min, int max) {
-        cal_min = min;
-        cal_max = max;
+        calMin = min;
+        calMax = max;
+    }
+
+    @Override
+    public BluetoothDevice getBtDevice() {
+        return btDevice;
+    }
+
+    @Override
+    public int getCalMax() {
+        return calMax;
+    }
+
+    @Override
+    public int getCalMin() {
+        return calMin;
     }
 }

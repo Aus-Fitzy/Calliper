@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_horizontal_margin"
+    android:paddingLeft="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_vertical_margin"
+    android:paddingTop="@dimen/activity_horizontal_margin"
+    tools:context="com.example.dean.calliper.app.MeasureFragment">
+
+    <Button
+        android:id="@+id/button_measurement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:onClick="onMeasureClicked"
+        android:text="@string/measure_button" />
+
+    <TextView
+        android:id="@+id/field_measurement_adc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/button_measurement"
+        android:layout_toEndOf="@+id/button_measurement"
+        android:text="@string/text_measure_adc"
+        android:textAlignment="viewEnd"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
+    <TextView
+        android:id="@+id/field_measurement_mm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/field_measurement_adc"
+        android:text="@string/text_measure_mm"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</RelativeLayout>
