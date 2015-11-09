@@ -131,7 +131,7 @@ public class CalibrationFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnCalibrationChangedListener {
-        public void onCalibrationChanged(int min, int max);
+        void onCalibrationChanged(int min, int max);
     }
 
 }

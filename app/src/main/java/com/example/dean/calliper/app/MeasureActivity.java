@@ -8,10 +8,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.SeekBar;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dean.calliper.app.CalibrationFragment.OnCalibrationChangedListener;
@@ -20,7 +19,7 @@ import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.UnsupportedModuleException;
 import com.mbientlab.metawear.module.Led;
 
-public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener, MeasureFragment.FragmentListener {
+public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener, MeasureFragment.FragmentListener, View.OnClickListener {
     public static final String EXTRA_BT_DEVICE= "com.example.dean.calliper.app.MeasureActivity.EXTRA_BT_DEVICE";
 
     private static final String TAG = "MeasureActivity";
@@ -92,51 +91,6 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
                 }
             }
         });
-
-        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar_max);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                calMax = progress;
-                ((TextView) findViewById(R.id.field_cal_max)).setText(String.format("%d", progress));
-                if (((SeekBar) findViewById(R.id.seekBar_min)).getProgress() > calMax)
-                    ((SeekBar) findViewById(R.id.seekBar_min)).setProgress(calMax);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        seekBar = (SeekBar) findViewById(R.id.seekBar_min);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                calMin = progress;
-                ((TextView) findViewById(R.id.field_cal_min)).setText(Integer.toString(progress));
-                if (((SeekBar) findViewById(R.id.seekBar_max)).getProgress() < calMin) {
-                    ((SeekBar) findViewById(R.id.seekBar_max)).setProgress(calMin);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-
     }
 
 
@@ -186,5 +140,14 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     @Override
     public int getCalMin() {
         return calMin;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.skinSite_fragment:
+                Log.i(TAG, String.format("Site 1, View %d\n", v.getId()));
+                break;
+        }
     }
 }

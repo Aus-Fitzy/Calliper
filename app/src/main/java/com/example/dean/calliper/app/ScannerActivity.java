@@ -6,20 +6,21 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
-import com.mbientlab.bletoolbox.scanner.BleScannerFragment.*;
+import com.mbientlab.bletoolbox.scanner.BleScannerFragment.ScannerCommunicationBus;
+import com.mbientlab.bletoolbox.scanner.BleScannerFragment.ScannerListener;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
 
 import java.util.UUID;
 
 public class ScannerActivity extends AppCompatActivity implements ScannerCommunicationBus, ScannerListener, ServiceConnection {
-    private final static UUID[] serviceUuids;
     public static final int REQUEST_START_APP= 1;
+    private final static UUID[] serviceUuids;
 
     static {
         serviceUuids= new UUID[] {
@@ -68,7 +69,7 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
         connectDialog.setCancelable(false);
         connectDialog.setCanceledOnTouchOutside(false);
         connectDialog.setIndeterminate(true);
-        connectDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(com.example.dean.calliper.app.R.string.lable_abort), new DialogInterface.OnClickListener() {
+        connectDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(com.example.dean.calliper.app.R.string.label_abort), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mwBoard.disconnect();

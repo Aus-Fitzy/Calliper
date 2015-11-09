@@ -5,17 +5,16 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
+    android:weightSum="1"
     tools:context="com.example.dean.calliper.app.Messure">
 
     <Switch
             android:id="@+id/led_toggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:checked="false"
             android:nestedScrollingEnabled="false"
-            android:text="@string/switch_ledtoggle" />
+        android:text="@string/switch_ledToggle" />
 
 
     <fragment
@@ -24,6 +23,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:layout="@layout/fragment_measure" />
+
+    <fragment
+        android:id="@+id/skinSite_fragment"
+        android:name="com.example.dean.calliper.app.SkinSiteFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_skin_site" />
+
 
     <fragment
         android:id="@+id/calibration_fragment"
