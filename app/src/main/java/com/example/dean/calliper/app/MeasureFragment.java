@@ -32,7 +32,7 @@ import com.mbientlab.metawear.module.Gpio;
 public class MeasureFragment extends Fragment implements ServiceConnection {
 
     private static final String TAG = "MeasureFragment";
-    private FragmentListener fragmentListener;
+    private MeasureFragmentListener fragmentListener;
     private MetaWearBoard mwBoard;
     private Gpio gpioModule;
 
@@ -45,7 +45,7 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
         super.onAttach(context);
         Activity activity = (Activity) context;
         activity.getApplicationContext().bindService(new Intent(activity, MetaWearBleService.class), this, Context.BIND_AUTO_CREATE);
-        fragmentListener = (FragmentListener) context;
+        fragmentListener = (MeasureFragmentListener) context;
     }
 
     @Override
@@ -100,10 +100,11 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
                         int calMin = fragmentListener.getCalMin();
                         Short signal = message.getData(Short.class);
                         float resolution = (float) (80.0 / (calMax - calMin));
-
+                        int result = (int) ((signal - calMin) * resolution);
                         tvADC.setText(String.format("%d ADC", signal));
-                        tvMM.setText(String.format("%.0f mm", (signal - calMin) * resolution));
+                        tvMM.setText(String.format("%d mm", result));
                         Log.i(TAG, "ADC" + message.getData(Short.class));
+                        fragmentListener.onMeasureSkin(result);
                     }
                 });
             }
@@ -112,11 +113,13 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
         gpioModule.readAnalogIn(pin, mode);
     }
 
-    public interface FragmentListener {
+    public interface MeasureFragmentListener {
         BluetoothDevice getBtDevice();
 
         int getCalMax();
 
         int getCalMin();
+
+        void onMeasureSkin(int result);
     }
 }

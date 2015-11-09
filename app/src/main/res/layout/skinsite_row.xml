@@ -7,22 +7,23 @@
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/skinSite_text"
+        android:id="@+id/skin_site_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?android:attr/activatedBackgroundIndicator"
         android:padding="@dimen/activity_horizontal_margin"
         android:text="Site"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-        tools:ignore="HardcodedText"></TextView>
+        tools:ignore="HardcodedText" />
 
     <TextView
+        android:id="@+id/skin_site_measurement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/activatedBackgroundIndicator"
         android:padding="@dimen/activity_horizontal_margin"
         android:text="@string/label_skinSite_mm_empty"
         android:textAlignment="viewEnd"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"></TextView>
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
 
 </LinearLayout>

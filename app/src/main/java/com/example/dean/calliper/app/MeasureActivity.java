@@ -19,7 +19,7 @@ import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.UnsupportedModuleException;
 import com.mbientlab.metawear.module.Led;
 
-public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener, MeasureFragment.FragmentListener, View.OnClickListener {
+public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener, MeasureFragment.MeasureFragmentListener, View.OnClickListener {
     public static final String EXTRA_BT_DEVICE= "com.example.dean.calliper.app.MeasureActivity.EXTRA_BT_DEVICE";
 
     private static final String TAG = "MeasureActivity";
@@ -140,6 +140,12 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     @Override
     public int getCalMin() {
         return calMin;
+    }
+
+    @Override
+    public void onMeasureSkin(int result) {
+        SkinSiteFragment skinSiteFragment = (SkinSiteFragment) getSupportFragmentManager().findFragmentById(R.id.skinSite_fragment);
+        skinSiteFragment.updateMeasurement(result);
     }
 
     @Override
