@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +24,8 @@ public class SkinSiteFragment extends Fragment {
     //    private OnFragmentInteractionListener mListener;
     private ListView listView;
     private SimpleAdapter listAdaptor;
-    private ArrayList<HashMap<String, String>> data;
+    private ArrayList<HashMap<String, Object>> data;
+    //private TextView
 
     public SkinSiteFragment() {
         // Required empty public constructor
@@ -44,37 +46,51 @@ public class SkinSiteFragment extends Fragment {
         listView = (ListView) view.findViewById(R.id.skinSite_list);
 
 
-        data = new ArrayList<HashMap<String, String>>();
+        data = new ArrayList<HashMap<String, Object>>();
         String[] from = {"site", "measurement"};
         int[] to = {R.id.skin_site_text, R.id.skin_site_measurement};
 
 
-        data.add(putMap(from, "Site 1", "mm"));
-        data.add(putMap(from, "Site 2", "mm"));
-        data.add(putMap(from, "Site 3", "mm"));
-        data.add(putMap(from, "Site 4", "mm"));
+        data.add(putMap(from, "Abdominal", 0));
+        data.add(putMap(from, "Triceps", 0));
+        data.add(putMap(from, "Chest", 0));
+        data.add(putMap(from, "Midaxillary", 0));
+        data.add(putMap(from, "Subscapular", 0));
+        data.add(putMap(from, "Suprailiac ", 0));
+        data.add(putMap(from, "Thigh", 0));
 
 
         listAdaptor = new SimpleAdapter(getActivity(), data, R.layout.skinsite_row, from, to);
+        listAdaptor.setViewBinder(new SimpleAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Object data, String textRepresentation) {
+                if (view.getId() == R.id.skin_site_measurement) {
+                    TextView text = (TextView) view;
+                    text.setText(String.format("%s mm", textRepresentation));
+                    return true;
+                }
+                return false;
+            }
+        });
         //listAdaptor = new ArrayAdapter<String>(getActivity(), R.layout.skinsite_row, R.id.skinSite_text, siteArrayList);
         listView.setAdapter(listAdaptor);
 
     }
 
-    private HashMap<String, String> putMap(String[] from, String first, String second) {
-        HashMap<String, String> res = new HashMap<String, String>();
+    private HashMap<String, Object> putMap(String[] from, String first, int second) {
+        HashMap<String, Object> res = new HashMap<String, Object>();
         res.put(from[0], first);
         res.put(from[1], second);
         return res;
     }
 
     public void updateMeasurement(int result) {
-        int viewpos = listView.getCheckedItemPosition();
-        if (viewpos != AbsListView.INVALID_POSITION) {
-            //TODO
-            //viewpos maps to the data model directly atm, this may change
-            HashMap<String, String> inner = data.get(viewpos);
-            inner.put("measurement", String.format("%d mm", result));
+        int pos = listView.getCheckedItemPosition();
+        if (pos != AbsListView.INVALID_POSITION) {
+            //view modal to data modal for pos
+            pos = (int) listAdaptor.getItemId(pos);
+            HashMap<String, Object> inner = data.get(pos);
+            inner.put("measurement", String.format("%d", result));
             listAdaptor.notifyDataSetChanged();
         }
     }
