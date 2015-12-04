@@ -8,27 +8,34 @@
     android:weightSum="1"
     tools:context="com.example.dean.calliper.app.Messure">
 
-    <Switch
-            android:id="@+id/led_toggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:nestedScrollingEnabled="false"
-        android:text="@string/switch_ledToggle" />
-
+    <!--<Switch-->
+    <!--android:id="@+id/led_toggle"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:checked="false"-->
+    <!--android:nestedScrollingEnabled="false"-->
+    <!--android:text="@string/switch_ledToggle" />-->
 
     <fragment
         android:id="@+id/measure_fragment"
-        class="com.example.dean.calliper.app.MeasureFragment"
+        android:name="com.example.dean.calliper.app.MeasureFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:layout="@layout/fragment_measure" />
+
+    <fragment
+        android:id="@+id/calculation_fragment"
+        android:name="com.example.dean.calliper.app.CalculationFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_calculation" />
 
     <fragment
         android:id="@+id/skinSite_fragment"
         android:name="com.example.dean.calliper.app.SkinSiteFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         tools:layout="@layout/fragment_skin_site" />
 
 

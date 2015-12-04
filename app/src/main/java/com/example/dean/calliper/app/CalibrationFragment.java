@@ -20,8 +20,8 @@ import android.widget.TextView;
 public class CalibrationFragment extends Fragment {
 
     private OnCalibrationChangedListener mListener;
-    private int cal_max;
-    private int cal_min;
+    private int cal_0;
+    private int cal_50;
 
     public CalibrationFragment() {
         // Required empty public constructor
@@ -52,16 +52,16 @@ public class CalibrationFragment extends Fragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekBar_max);
+        SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekBar_0);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                cal_max = progress;
-                ((TextView) view.findViewById(R.id.field_cal_max)).setText(String.format("%d", progress));
-                if (((SeekBar) view.findViewById(R.id.seekBar_min)).getProgress() > cal_max)
-                    ((SeekBar) view.findViewById(R.id.seekBar_min)).setProgress(cal_max);
+                cal_0 = progress;
+                ((TextView) view.findViewById(R.id.field_cal_0)).setText(String.format("%d", progress));
+                if (((SeekBar) view.findViewById(R.id.seekBar_50)).getProgress() >= cal_0)
+                    ((SeekBar) view.findViewById(R.id.seekBar_50)).setProgress(cal_0 - 1);
                 if (mListener != null) {
-                    mListener.onCalibrationChanged(cal_min, cal_max);
+                    mListener.onCalibrationChanged(cal_50, cal_0);
                 }
             }
 
@@ -76,17 +76,17 @@ public class CalibrationFragment extends Fragment {
             }
         });
 
-        seekBar = (SeekBar) view.findViewById(R.id.seekBar_min);
+        seekBar = (SeekBar) view.findViewById(R.id.seekBar_50);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                cal_min = progress;
-                ((TextView) view.findViewById(R.id.field_cal_min)).setText(Integer.toString(progress));
-                if (((SeekBar) view.findViewById(R.id.seekBar_max)).getProgress() < cal_min) {
-                    ((SeekBar) view.findViewById(R.id.seekBar_max)).setProgress(cal_min);
+                cal_50 = progress;
+                ((TextView) view.findViewById(R.id.field_cal_50)).setText(Integer.toString(progress));
+                if (((SeekBar) view.findViewById(R.id.seekBar_0)).getProgress() <= cal_50) {
+                    ((SeekBar) view.findViewById(R.id.seekBar_0)).setProgress(cal_50 + 1);
                 }
                 if (mListener != null) {
-                    mListener.onCalibrationChanged(cal_min, cal_max);
+                    mListener.onCalibrationChanged(cal_50, cal_0);
                 }
             }
 
@@ -131,7 +131,7 @@ public class CalibrationFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnCalibrationChangedListener {
-        void onCalibrationChanged(int min, int max);
+        void onCalibrationChanged(int cal50mm, int cal0mm);
     }
 
 }

@@ -21,11 +21,9 @@ import java.util.HashMap;
 
 public class SkinSiteFragment extends Fragment {
 
-    //    private OnFragmentInteractionListener mListener;
     private ListView listView;
     private SimpleAdapter listAdaptor;
     private ArrayList<HashMap<String, Object>> data;
-    //private TextView
 
     public SkinSiteFragment() {
         // Required empty public constructor
@@ -45,20 +43,17 @@ public class SkinSiteFragment extends Fragment {
 
         listView = (ListView) view.findViewById(R.id.skinSite_list);
 
-
         data = new ArrayList<HashMap<String, Object>>();
         String[] from = {"site", "measurement"};
         int[] to = {R.id.skin_site_text, R.id.skin_site_measurement};
 
-
-        data.add(putMap(from, "Abdominal", 0));
-        data.add(putMap(from, "Triceps", 0));
-        data.add(putMap(from, "Chest", 0));
-        data.add(putMap(from, "Midaxillary", 0));
-        data.add(putMap(from, "Subscapular", 0));
-        data.add(putMap(from, "Suprailiac ", 0));
-        data.add(putMap(from, "Thigh", 0));
-
+        data.add(putMap(from, getString(R.string.site_abdominal), 0));
+        data.add(putMap(from, getString(R.string.site_suprailiac), 0));
+        data.add(putMap(from, getString(R.string.site_triceps), 0));
+        data.add(putMap(from, getString(R.string.site_chest), 0));
+        data.add(putMap(from, getString(R.string.site_thigh), 0));
+        data.add(putMap(from, getString(R.string.site_midaxillary), 0));
+        data.add(putMap(from, getString(R.string.site_subscapular), 0));
 
         listAdaptor = new SimpleAdapter(getActivity(), data, R.layout.skinsite_row, from, to);
         listAdaptor.setViewBinder(new SimpleAdapter.ViewBinder() {
@@ -72,7 +67,6 @@ public class SkinSiteFragment extends Fragment {
                 return false;
             }
         });
-        //listAdaptor = new ArrayAdapter<String>(getActivity(), R.layout.skinsite_row, R.id.skinSite_text, siteArrayList);
         listView.setAdapter(listAdaptor);
 
     }
@@ -90,40 +84,12 @@ public class SkinSiteFragment extends Fragment {
             //view modal to data modal for pos
             pos = (int) listAdaptor.getItemId(pos);
             HashMap<String, Object> inner = data.get(pos);
-            inner.put("measurement", String.format("%d", result));
+            inner.put("measurement", result);
             listAdaptor.notifyDataSetChanged();
         }
     }
 
-    /*    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+    public ArrayList<HashMap<String, Object>> getData() {
+        return data;
     }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    *//**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     *//*
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }*/
-
 }

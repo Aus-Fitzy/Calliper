@@ -12,5 +12,11 @@
     <string name="text_measure_mm">mm</string>
     <string name="label_skinSite_default">Skin Site</string>
     <string name="label_skinSite_mm_empty">mm</string>
-
+    <string name="site_abdominal">Abdominal</string>
+    <string name="site_triceps">Triceps</string>
+    <string name="site_chest">Chest</string>
+    <string name="site_midaxillary">Midaxillary</string>
+    <string name="site_subscapular">Subscapular</string>
+    <string name="site_suprailiac">Suprailiac</string>
+    <string name="site_thigh">Thigh</string>
 </resources>

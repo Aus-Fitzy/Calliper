@@ -9,15 +9,10 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.Switch;
-import android.widget.Toast;
 
 import com.example.dean.calliper.app.CalibrationFragment.OnCalibrationChangedListener;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
-import com.mbientlab.metawear.UnsupportedModuleException;
-import com.mbientlab.metawear.module.Led;
 
 public class MeasureActivity extends AppCompatActivity implements ServiceConnection, OnCalibrationChangedListener, MeasureFragment.MeasureFragmentListener, View.OnClickListener {
     public static final String EXTRA_BT_DEVICE= "com.example.dean.calliper.app.MeasureActivity.EXTRA_BT_DEVICE";
@@ -50,8 +45,8 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     };
     private MetaWearBoard mwBoard;
     private BluetoothDevice btDevice;
-    private int calMax = 1024;
-    private int calMin = 0;
+    private int calZero = 1024;
+    private int cal50mm = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +56,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
 
-        Switch LEDSwitch = (Switch) findViewById(R.id.led_toggle);
+       /* Switch LEDSwitch = (Switch) findViewById(R.id.led_toggle);
         LEDSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -90,7 +85,7 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
                     }
                 }
             }
-        });
+        });*/
     }
 
 
@@ -122,9 +117,9 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     }
 
     @Override
-    public void onCalibrationChanged(int min, int max) {
-        calMin = min;
-        calMax = max;
+    public void onCalibrationChanged(int cal50, int cal0) {
+        cal50mm = cal50;
+        calZero = cal0;
     }
 
     @Override
@@ -133,19 +128,21 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     }
 
     @Override
-    public int getCalMax() {
-        return calMax;
+    public int getCalZero() {
+        return calZero;
     }
 
     @Override
-    public int getCalMin() {
-        return calMin;
+    public int getCal50mm() {
+        return cal50mm;
     }
 
     @Override
     public void onMeasureSkin(int result) {
         SkinSiteFragment skinSiteFragment = (SkinSiteFragment) getSupportFragmentManager().findFragmentById(R.id.skinSite_fragment);
         skinSiteFragment.updateMeasurement(result);
+        CalculationFragment calculationFragment = (CalculationFragment) getSupportFragmentManager().findFragmentById(R.id.calculation_fragment);
+        calculationFragment.updateCalculation(skinSiteFragment.getData());
     }
 
     @Override

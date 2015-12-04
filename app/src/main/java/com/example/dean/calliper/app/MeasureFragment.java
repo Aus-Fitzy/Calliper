@@ -24,6 +24,7 @@ import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.UnsupportedModuleException;
 import com.mbientlab.metawear.module.Gpio;
+import com.mbientlab.metawear.module.Led;
 
 
 /**
@@ -32,9 +33,11 @@ import com.mbientlab.metawear.module.Gpio;
 public class MeasureFragment extends Fragment implements ServiceConnection {
 
     private static final String TAG = "MeasureFragment";
+    byte pinSource = 1;
     private MeasureFragmentListener fragmentListener;
     private MetaWearBoard mwBoard;
     private Gpio gpioModule;
+    private Led LEDModule;
 
     public MeasureFragment() {
         // Required empty public constructor
@@ -60,6 +63,15 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
         mwBoard = ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(fragmentListener.getBtDevice());
         try {
             gpioModule = mwBoard.getModule(Gpio.class);
+            LEDModule = mwBoard.getModule(Led.class);
+
+            LEDModule.configureColorChannel(Led.ColorChannel.GREEN)
+                    .setRiseTime((short) 500).setPulseDuration((short) 1000)
+                    .setRepeatCount((byte) 1).setHighTime((short) 500)
+                    .setHighIntensity((byte) 8).setLowIntensity((byte) 1)
+                    .commit();
+            LEDModule.play(true);
+
         } catch (UnsupportedModuleException e) {
             e.printStackTrace();
         }
@@ -67,7 +79,7 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-
+        Log.i(TAG, "Service Disconnected");
     }
 
     @Override
@@ -83,24 +95,34 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
     }
 
     public void onMeasureClicked(View v) {
-        byte pin = 0;
+        byte pinADC = 0;
+
+
         Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
 
         final TextView tvADC = (TextView) v.findViewById(R.id.field_measurement_adc);
         final TextView tvMM = (TextView) v.findViewById(R.id.field_measurement_mm);
 
-        gpioModule.routeData().fromAnalogIn(pin, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+        gpioModule.routeData().fromAnalogIn(pinADC, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
                 result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
                     @Override
                     public void process(Message message) {
-                        //scale the reading to mm, 0-80mm range from cal_min to cal_max
-                        int calMax = fragmentListener.getCalMax();
-                        int calMin = fragmentListener.getCalMin();
+                        //scale the reading to mm, 0-50mm range from calZero to cal50mm
+                        //cal Zero approaches  1023, cal 50mm approaches 0.
+                        int cal50 = fragmentListener.getCal50mm();
+                        int cal0 = fragmentListener.getCalZero();
                         Short signal = message.getData(Short.class);
-                        float resolution = (float) (80.0 / (calMax - calMin));
-                        int result = (int) ((signal - calMin) * resolution);
+
+                        float ratio = (cal0 - signal) / (float) (cal0 - cal50);
+
+                        Log.i(TAG, String.format("Cal 0:\t%d\tcal 50:\t%d\tSignal:\t%d\tRatio:\t%f", cal0, cal50, signal, ratio));
+
+                        int result = (int) (ratio * 50);
+                        //float) (50.0 / (cal0 - cal50));
+                        //int result = (int) ((signal - calMin) * resolution);
+
                         tvADC.setText(String.format("%d ADC", signal));
                         tvMM.setText(String.format("%d mm", result));
                         Log.i(TAG, "ADC" + message.getData(Short.class));
@@ -110,15 +132,22 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
             }
         });
 
-        gpioModule.readAnalogIn(pin, mode);
+
+        gpioModule.setDigitalOut(pinSource);
+        LEDModule.play(true);
+
+        gpioModule.readAnalogIn(pinADC, mode);
+
+        LEDModule.stop(false);
+        gpioModule.clearDigitalOut(pinSource);
     }
 
     public interface MeasureFragmentListener {
         BluetoothDevice getBtDevice();
 
-        int getCalMax();
+        int getCal50mm();
 
-        int getCalMin();
+        int getCalZero();
 
         void onMeasureSkin(int result);
     }
