@@ -1,13 +1,26 @@
 package com.example.dean.calliper.app;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.Message;
+import com.mbientlab.metawear.MetaWearBleService;
+import com.mbientlab.metawear.MetaWearBoard;
+import com.mbientlab.metawear.RouteManager;
+import com.mbientlab.metawear.UnsupportedModuleException;
+import com.mbientlab.metawear.module.Gpio;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,11 +30,13 @@ import android.widget.TextView;
  * Use the {@link CalibrationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CalibrationFragment extends Fragment {
+public class CalibrationFragment extends Fragment implements ServiceConnection {
 
     private OnCalibrationChangedListener mListener;
     private int cal_0;
     private int cal_50;
+    private MetaWearBoard mwBoard;
+    private Gpio gpioModule;
 
     public CalibrationFragment() {
         // Required empty public constructor
@@ -52,8 +67,57 @@ public class CalibrationFragment extends Fragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekBar_0);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+        final SeekBar seekBar0 = (SeekBar) view.findViewById(R.id.seekBar_0);
+        final SeekBar seekBar50 = (SeekBar) view.findViewById(R.id.seekBar_50);
+
+
+        view.findViewById(R.id.cal0_text).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gpioModule.routeData().fromAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                    @Override
+                    public void success(RouteManager result) {
+                        result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
+                            @Override
+                            public void process(Message message) {
+
+                                Short signal = message.getData(Short.class);
+                                seekBar0.setProgress(signal);
+                            }
+                        });
+                    }
+                });
+                gpioModule.setDigitalOut(MeasureActivity.pinSource);
+                gpioModule.readAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC);
+                gpioModule.clearDigitalOut(MeasureActivity.pinSource);
+            }
+        });
+
+        view.findViewById(R.id.cal50_text).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gpioModule.routeData().fromAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                    @Override
+                    public void success(RouteManager result) {
+                        boolean worked = result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
+                            @Override
+                            public void process(Message message) {
+
+                                Short signal = message.getData(Short.class);
+                                seekBar50.setProgress(signal);
+                            }
+                        });
+                    }
+                });
+                gpioModule.setDigitalOut(MeasureActivity.pinSource);
+                gpioModule.readAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC);
+                gpioModule.clearDigitalOut(MeasureActivity.pinSource);
+            }
+        });
+
+
+        seekBar0.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cal_0 = progress;
@@ -76,8 +140,8 @@ public class CalibrationFragment extends Fragment {
             }
         });
 
-        seekBar = (SeekBar) view.findViewById(R.id.seekBar_50);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+        seekBar50.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cal_50 = progress;
@@ -105,6 +169,7 @@ public class CalibrationFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        context.getApplicationContext().bindService(new Intent(context, MetaWearBleService.class), this, Context.BIND_AUTO_CREATE);
         try {
             mListener = (OnCalibrationChangedListener) context;
         } catch (ClassCastException e) {
@@ -120,6 +185,22 @@ public class CalibrationFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        mwBoard = ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(mListener.getBtDevice());
+        try {
+            gpioModule = mwBoard.getModule(Gpio.class);
+
+        } catch (UnsupportedModuleException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -131,6 +212,7 @@ public class CalibrationFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnCalibrationChangedListener {
+        BluetoothDevice getBtDevice();
         void onCalibrationChanged(int cal50mm, int cal0mm);
     }
 

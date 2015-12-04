@@ -18,6 +18,9 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     public static final String EXTRA_BT_DEVICE= "com.example.dean.calliper.app.MeasureActivity.EXTRA_BT_DEVICE";
 
     private static final String TAG = "MeasureActivity";
+    public static byte pinADC = 0;
+    public static byte pinSource = 1;
+
     private final MetaWearBoard.ConnectionStateHandler connectionHandler = new MetaWearBoard.ConnectionStateHandler() {
         @Override
         public void connected() {

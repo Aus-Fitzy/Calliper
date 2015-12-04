@@ -33,7 +33,6 @@ import com.mbientlab.metawear.module.Led;
 public class MeasureFragment extends Fragment implements ServiceConnection {
 
     private static final String TAG = "MeasureFragment";
-    byte pinSource = 1;
     private MeasureFragmentListener fragmentListener;
     private MetaWearBoard mwBoard;
     private Gpio gpioModule;
@@ -95,15 +94,11 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
     }
 
     public void onMeasureClicked(View v) {
-        byte pinADC = 0;
-
-
-        Gpio.AnalogReadMode mode = Gpio.AnalogReadMode.ADC;
 
         final TextView tvADC = (TextView) v.findViewById(R.id.field_measurement_adc);
         final TextView tvMM = (TextView) v.findViewById(R.id.field_measurement_mm);
 
-        gpioModule.routeData().fromAnalogIn(pinADC, mode).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+        gpioModule.routeData().fromAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
                 result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
@@ -133,13 +128,13 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
         });
 
 
-        gpioModule.setDigitalOut(pinSource);
+        gpioModule.setDigitalOut(MeasureActivity.pinSource);
         LEDModule.play(true);
 
-        gpioModule.readAnalogIn(pinADC, mode);
+        gpioModule.readAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC);
 
         LEDModule.stop(false);
-        gpioModule.clearDigitalOut(pinSource);
+        gpioModule.clearDigitalOut(MeasureActivity.pinSource);
     }
 
     public interface MeasureFragmentListener {
