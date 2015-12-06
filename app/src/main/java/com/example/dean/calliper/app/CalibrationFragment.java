@@ -34,7 +34,7 @@ public class CalibrationFragment extends Fragment implements ServiceConnection {
 
     private OnCalibrationChangedListener mListener;
     private int cal_0;
-    private int cal_50;
+    private int cal_33;
     private MetaWearBoard mwBoard;
     private Gpio gpioModule;
 
@@ -69,7 +69,7 @@ public class CalibrationFragment extends Fragment implements ServiceConnection {
         super.onViewCreated(view, savedInstanceState);
 
         final SeekBar seekBar0 = (SeekBar) view.findViewById(R.id.seekBar_0);
-        final SeekBar seekBar50 = (SeekBar) view.findViewById(R.id.seekBar_50);
+        final SeekBar seekBar33 = (SeekBar) view.findViewById(R.id.seekBar_33);
 
 
         view.findViewById(R.id.cal0_text).setOnClickListener(new View.OnClickListener() {
@@ -94,7 +94,7 @@ public class CalibrationFragment extends Fragment implements ServiceConnection {
             }
         });
 
-        view.findViewById(R.id.cal50_text).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.cal33_text).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gpioModule.routeData().fromAnalogIn(MeasureActivity.pinADC, Gpio.AnalogReadMode.ADC).stream("pin0_adc").commit().onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
@@ -105,7 +105,7 @@ public class CalibrationFragment extends Fragment implements ServiceConnection {
                             public void process(Message message) {
 
                                 Short signal = message.getData(Short.class);
-                                seekBar50.setProgress(signal);
+                                seekBar33.setProgress(signal);
                             }
                         });
                     }
@@ -122,10 +122,10 @@ public class CalibrationFragment extends Fragment implements ServiceConnection {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cal_0 = progress;
                 ((TextView) view.findViewById(R.id.field_cal_0)).setText(String.format("%d", progress));
-                if (((SeekBar) view.findViewById(R.id.seekBar_50)).getProgress() >= cal_0)
-                    ((SeekBar) view.findViewById(R.id.seekBar_50)).setProgress(cal_0 - 1);
+                if (((SeekBar) view.findViewById(R.id.seekBar_33)).getProgress() >= cal_0)
+                    ((SeekBar) view.findViewById(R.id.seekBar_33)).setProgress(cal_0 - 1);
                 if (mListener != null) {
-                    mListener.onCalibrationChanged(cal_50, cal_0);
+                    mListener.onCalibrationChanged(cal_33, cal_0);
                 }
             }
 
@@ -141,16 +141,16 @@ public class CalibrationFragment extends Fragment implements ServiceConnection {
         });
 
 
-        seekBar50.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        seekBar33.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                cal_50 = progress;
-                ((TextView) view.findViewById(R.id.field_cal_50)).setText(Integer.toString(progress));
-                if (((SeekBar) view.findViewById(R.id.seekBar_0)).getProgress() <= cal_50) {
-                    ((SeekBar) view.findViewById(R.id.seekBar_0)).setProgress(cal_50 + 1);
+                cal_33 = progress;
+                ((TextView) view.findViewById(R.id.field_cal_33)).setText(Integer.toString(progress));
+                if (((SeekBar) view.findViewById(R.id.seekBar_0)).getProgress() <= cal_33) {
+                    ((SeekBar) view.findViewById(R.id.seekBar_0)).setProgress(cal_33 + 1);
                 }
                 if (mListener != null) {
-                    mListener.onCalibrationChanged(cal_50, cal_0);
+                    mListener.onCalibrationChanged(cal_33, cal_0);
                 }
             }
 

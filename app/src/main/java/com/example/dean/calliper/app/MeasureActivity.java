@@ -131,17 +131,17 @@ public class MeasureActivity extends AppCompatActivity implements ServiceConnect
     }
 
     @Override
-    public int getCalZero() {
+    public int getCal0mm() {
         return calZero;
     }
 
     @Override
-    public int getCal50mm() {
+    public int getCal33mm() {
         return cal50mm;
     }
 
     @Override
-    public void onMeasureSkin(int result) {
+    public void onMeasureSkin(float result) {
         SkinSiteFragment skinSiteFragment = (SkinSiteFragment) getSupportFragmentManager().findFragmentById(R.id.skinSite_fragment);
         skinSiteFragment.updateMeasurement(result);
         CalculationFragment calculationFragment = (CalculationFragment) getSupportFragmentManager().findFragmentById(R.id.calculation_fragment);

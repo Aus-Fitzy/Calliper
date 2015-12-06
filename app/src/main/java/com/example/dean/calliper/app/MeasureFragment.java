@@ -104,22 +104,20 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
                 result.subscribe("pin0_adc", new RouteManager.MessageHandler() {
                     @Override
                     public void process(Message message) {
-                        //scale the reading to mm, 0-50mm range from calZero to cal50mm
-                        //cal Zero approaches  1023, cal 50mm approaches 0.
-                        int cal50 = fragmentListener.getCal50mm();
-                        int cal0 = fragmentListener.getCalZero();
+                        //scale the reading to mm, 0-33mm range from cal0mm to cal33mm
+                        //cal Zero approaches  1023, cal 33mm approaches 0.
+                        int cal33 = fragmentListener.getCal33mm();
+                        int cal0 = fragmentListener.getCal0mm();
                         Short signal = message.getData(Short.class);
 
-                        float ratio = (cal0 - signal) / (float) (cal0 - cal50);
+                        float ratio = (cal0 - signal) / (float) (cal0 - cal33);
 
-                        Log.i(TAG, String.format("Cal 0:\t%d\tcal 50:\t%d\tSignal:\t%d\tRatio:\t%f", cal0, cal50, signal, ratio));
+                        Log.i(TAG, String.format("Cal 0:\t%d\tcal 50:\t%d\tSignal:\t%d\tRatio:\t%f", cal0, cal33, signal, ratio));
 
-                        int result = (int) (ratio * 50);
-                        //float) (50.0 / (cal0 - cal50));
-                        //int result = (int) ((signal - calMin) * resolution);
+                        float result = (ratio * 33);
 
                         tvADC.setText(String.format("%d ADC", signal));
-                        tvMM.setText(String.format("%d mm", result));
+                        tvMM.setText(String.format("%.1f mm", result));
                         Log.i(TAG, "ADC" + message.getData(Short.class));
                         fragmentListener.onMeasureSkin(result);
                     }
@@ -140,10 +138,10 @@ public class MeasureFragment extends Fragment implements ServiceConnection {
     public interface MeasureFragmentListener {
         BluetoothDevice getBtDevice();
 
-        int getCal50mm();
+        int getCal33mm();
 
-        int getCalZero();
+        int getCal0mm();
 
-        void onMeasureSkin(int result);
+        void onMeasureSkin(float result);
     }
 }

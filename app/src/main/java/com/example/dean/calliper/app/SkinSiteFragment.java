@@ -71,14 +71,14 @@ public class SkinSiteFragment extends Fragment {
 
     }
 
-    private HashMap<String, Object> putMap(String[] from, String first, int second) {
+    private HashMap<String, Object> putMap(String[] from, String first, float second) {
         HashMap<String, Object> res = new HashMap<String, Object>();
         res.put(from[0], first);
         res.put(from[1], second);
         return res;
     }
 
-    public void updateMeasurement(int result) {
+    public void updateMeasurement(float result) {
         int pos = listView.getCheckedItemPosition();
         if (pos != AbsListView.INVALID_POSITION) {
             //view modal to data modal for pos

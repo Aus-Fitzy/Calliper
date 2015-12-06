@@ -40,7 +40,7 @@ public class CalculationFragment extends Fragment {
     }
 
     public void updateCalculation(ArrayList<HashMap<String, Object>> data) {
-        int sum3 = 0, sum7 = 0;
+        float sum3 = 0, sum7 = 0;
         float bf3, bf7;
         int age = 30;
 
@@ -50,11 +50,11 @@ public class CalculationFragment extends Fragment {
         // bd7 density = (1.112 – (0.00043499 * sum7) + (0.00000055 * sum7^2) – (0.00028826 * age)
         // bf7% = (4.95 ÷ bd7) – 4.50 for a white 18-59yo male
         for (HashMap<String, Object> sitemap : data) {
-            sum7 += (int) sitemap.get("measurement");
+            sum7 += (float) sitemap.get("measurement");
             if (sitemap.get("site") == (getString(R.string.site_abdominal)) ||
                     sitemap.get("site") == (getString(R.string.site_suprailiac)) ||
                     sitemap.get("site") == (getString(R.string.site_triceps)))
-                sum3 += (int) sitemap.get("measurement");
+                sum3 += (float) sitemap.get("measurement");
         }
         bf3 = (float) ((0.39287 * sum3) - (0.00105 * sum3 * sum3) + (0.15772 * age));
         bf7 = (float) (1.112 - (0.00043499 * sum7) + (0.00000055 * sum7 * sum7) - (0.00028826 * age));
